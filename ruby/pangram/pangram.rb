@@ -1,13 +1,12 @@
 require 'set'
 
 class Pangram
+
   def self.pangram?(phrase)
-    phrase.downcase!
-    ("a".."z").to_a.each do |letter|
-      phrase.count(letter) == 0 ? return : next
-    end
-    return true
+    phrase.downcase.split("").select{|char| ALPHA.include?(char)}.sort.to_set == ALPHA
   end
+
+  ALPHA=("a".."z").to_set
 end
 
 module BookKeeping
