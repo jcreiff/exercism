@@ -1,12 +1,11 @@
 require 'set'
 
 class Pangram
-
   def self.pangram?(phrase)
-    phrase.downcase.chars.select{|char| ALPHA.include?(char)}.to_set == ALPHA
+    phrase.downcase.chars.select { |char| ALPHA.include?(char) }.to_set == ALPHA
   end
 
-  ALPHA=("a".."z").to_set
+  ALPHA = ('a'..'z').to_set
 end
 
 module BookKeeping
