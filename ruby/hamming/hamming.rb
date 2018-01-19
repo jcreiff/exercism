@@ -1,14 +1,8 @@
 class Hamming
-
-  def self.compute(first_strand, second_strand, distance=0)
-    raise ArgumentError, "Strands must be of equal length" if first_strand.length != second_strand.length
-    first_strand_bases = first_strand.split("")
-    second_strand.split("").each_with_index do |base, index|
-      distance+=1 if base != first_strand_bases[index]
-    end
-    distance
+  def self.compute(strand1, strand2)
+    raise ArgumentError, 'Strands must be of equal length' if strand1.size != strand2.size
+    (0..strand1.size).count { |i| strand1[i] != strand2[i] }
   end
-
 end
 
 module BookKeeping
