@@ -3,21 +3,16 @@ class Phrase
 
   def initialize(phrase)
     @phrase = sanitize(phrase)
-    @words = {}
   end
 
   def word_count
-    phrase.each { |word| words[word] = phrase.count(word) }
-    words
+    phrase.each_with_object({}) do |word, counts|
+      counts[word] = phrase.count(word)
+    end
   end
 
   def sanitize(phrase)
-    separated = phrase.downcase.gsub(/[\W&&[^']]/, ' ').split(' ')
-    separated.map { |word| handle_quotes(word) }
-  end
-
-  def handle_quotes(word)
-    word.start_with?("'") || word.end_with?("'") ? word.gsub!(/[']/, '') : word
+    phrase.downcase.scan(/\b[\w']+\b/)
   end
 end
 
