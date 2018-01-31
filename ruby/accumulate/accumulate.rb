@@ -1,12 +1,7 @@
 class Array
   def accumulate(&block)
-    Array.new(size) do |index|
-      if block_given?
-        yield self[index]
-      else
-        return to_enum
-      end
-    end
+    return to_enum(:accumulate) unless block_given?
+    Array.new(size) { |index| yield self[index] }
   end
 end
 
