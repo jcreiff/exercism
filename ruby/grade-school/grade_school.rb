@@ -6,15 +6,16 @@ class School
   end
 
   def students(grade)
-    roll[grade].sort
+    roll[grade]
   end
 
   def add(name, grade)
     roll[grade] << name
+    roll[grade].sort!
   end
 
   def students_by_grade
-    roll.keys.sort.map { |grade| { grade: grade, students: roll[grade].sort } }
+    roll.sort.map { |grade, students| { grade: grade, students: students.dup } }
   end
 end
 
