@@ -1,22 +1,21 @@
 module ClockNumbers
   refine Fixnum do
     def to_s
-      sprintf('%02d', self)
+      format('%02d', self)
     end
   end
 end
 
 class Clock
-  attr_reader :minutes, :hours
+  attr_accessor :minutes
 
   def initialize(hours, minutes)
-    @rollover, @minutes = format_minutes(minutes)
-    @hours = format_hours(hours)
+    @minutes = minutes + hours * 60
   end
 
   def +(other)
-    initialize(hours, minutes + other)
-    self.dup
+    self.minutes += other
+    dup
   end
 
   def ==(other)
@@ -29,17 +28,7 @@ class Clock
 
   using ClockNumbers
   def to_s
-    hours.to_s + ':' + minutes.to_s
-  end
-
-  private
-
-  def format_minutes(digits)
-    digits.divmod(60)
-  end
-
-  def format_hours(digits)
-    (digits + @rollover) % 24
+    (minutes / 60 % 24).to_s + ':' + (minutes % 60).to_s
   end
 end
 
