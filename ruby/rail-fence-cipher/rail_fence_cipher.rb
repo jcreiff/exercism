@@ -1,21 +1,17 @@
 class RailFenceCipher
-
-  def self.encode(phrase, rails, output="")
-    return phrase if phrase == "" || rails>phrase.length || rails == 1
-    rail_array=Array.new(rails) {Array.new}
-    count=0
-    add=true
-    phrase.chars.each do |char|
-      rail_array[count]<<char
-      add==true ? count+=1 : count-=1
-      add=false if count==(rails-1)
-      add=true if count==0
-    end
-    rail_array.join
+  def self.encode(phrase, rails)
+    return phrase if phrase == '' || rails > phrase.length || rails == 1
+    rail = 0
+    direction = :down
+    (0...phrase.size).each_with_object(Array.new(rails) { [] }) do |i, encoded|
+      encoded[rail] << phrase.chars[i]
+      direction == :down ? rail += 1 : rail -= 1
+      direction = switch(direction) if rail.zero? || rail == rails - 1
+    end.join
   end
 
-  def self.decode(phrase, rails, output=Array.new(phrase.length), start=0, final_rail=rails)
-    return phrase if (phrase == "" || rails==1) && start == 0
+  def self.decode(phrase, rails, output = Array.new(phrase.length), start = 0, final_rail = rails)
+    return phrase if (phrase == '' || rails == 1 ) && start == 0
     return output.join if output.size == output.compact.size
     index=start
     slice_count=0
@@ -27,6 +23,14 @@ class RailFenceCipher
     end
     phrase.slice!(0..slice_count)
     self.decode(phrase, rails-1, output, start+1, final_rail)
+  end
+
+  class << self
+    private
+
+    def switch(current)
+      current == :down ? :up : :down
+    end
   end
 
   SPACERS={1=>1, 2=>2, 3=>4}
