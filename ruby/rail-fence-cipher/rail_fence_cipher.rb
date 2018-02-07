@@ -10,19 +10,19 @@ class RailFenceCipher
     end.join
   end
 
-  def self.decode(phrase, rails, output = Array.new(phrase.length), start = 0, final_rail = rails)
-    return phrase if (phrase == '' || rails == 1 ) && start == 0
+  def self.decode(phrase, rails, output = Array.new(phrase.length), start = 0, current = rails)
+    return phrase if (phrase == '' || rails == 1) && start.zero?
     return output.join if output.size == output.compact.size
-    index=start
-    slice_count=0
+    index = start
+    slice_count = 0
     phrase.chars.each do |char|
-      output[index]=char
-      rails == 1 ? index+=SPACERS[final_rail] : index+=SPACERS[rails]
-      break if index>output.length-1
-      slice_count+=1
+      output[index] = char
+      index += current == 1 ? SPACERS[rails] : SPACERS[current]
+      break if index > output.length - 1
+      slice_count += 1
     end
     phrase.slice!(0..slice_count)
-    self.decode(phrase, rails-1, output, start+1, final_rail)
+    decode(phrase, rails, output, start + 1, current - 1)
   end
 
   class << self
@@ -33,6 +33,6 @@ class RailFenceCipher
     end
   end
 
-  SPACERS={1=>1, 2=>2, 3=>4}
+  SPACERS = { 1 => 1, 2 => 2, 3 => 4 }.freeze
   VERSION = 1
 end
