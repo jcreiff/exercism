@@ -1,34 +1,66 @@
+module RailFenceArray
+  refine Array do
+    def split_by_index
+      each_with_index.partition { |_letter, index| index.even? }.map do |set|
+        set.map { |letter, _index| letter }
+      end
+    end
+  end
+end
+
 class RailFenceCipher
-
-  def self.encode(phrase, rails, output="")
-    return phrase if phrase == "" || rails>phrase.length || rails == 1
-    rail_array=Array.new(rails) {Array.new}
-    count=0
-    add=true
-    phrase.chars.each do |char|
-      rail_array[count]<<char
-      add==true ? count+=1 : count-=1
-      add=false if count==(rails-1)
-      add=true if count==0
-    end
-    rail_array.join
+  def self.encode(phrase, rails)
+    return phrase if invalid?(phrase, rails)
+    return encode_two(phrase.chars) if rails == 2
+    return encode_three(phrase.chars) if rails == 3
   end
 
-  def self.decode(phrase, rails, output=Array.new(phrase.length), start=0, final_rail=rails)
-    return phrase if (phrase == "" || rails==1) && start == 0
-    return output.join if output.size == output.compact.size
-    index=start
-    slice_count=0
-    phrase.chars.each do |char|
-      output[index]=char
-      rails == 1 ? index+=SPACERS[final_rail] : index+=SPACERS[rails]
-      break if index>output.length-1
-      slice_count+=1
-    end
-    phrase.slice!(0..slice_count)
-    self.decode(phrase, rails-1, output, start+1, final_rail)
+  def self.decode(phrase, rails)
+    return phrase if invalid?(phrase, rails)
+    return decode_two(phrase.chars) if rails == 2
+    return decode_three(phrase.chars) if rails == 3
   end
 
-  SPACERS={1=>1, 2=>2, 3=>4}
+  class << self
+    def invalid?(phrase, rails)
+      phrase == '' || rails > phrase.length || rails == 1
+    end
+
+    def decode_two(chars)
+      middle = (chars.length / 2.0).ceil
+      chars[0, middle].zip(chars[middle..-1]).join
+    end
+
+    def decode_three(chars)
+      top, middle, bottom = find_rails(chars)
+      reconstruct(top, middle, bottom)
+    end
+
+    def find_rails(chars)
+      first = (chars.length / 4.0).ceil
+      second = chars.length / 2
+      third = chars.length / 4
+      [chars[0, first], chars[first, second], chars[-third..-1]]
+    end
+
+    def reconstruct(top, middle, bottom, i = 0, output = '')
+      segment = [top[i], bottom[i]].zip([middle[i * 2], middle[i * 2 + 1]])
+      output << segment.join
+      return output if segment.flatten.compact.length < 4
+      reconstruct(top, middle, bottom, i += 1, output)
+    end
+
+    using RailFenceArray
+    def encode_two(chars)
+      chars.split_by_index.join
+    end
+
+    def encode_three(chars)
+      outer, middle = chars.split_by_index
+      top, bottom = outer.split_by_index
+      [top, middle, bottom].join
+    end
+  end
+  
   VERSION = 1
 end
