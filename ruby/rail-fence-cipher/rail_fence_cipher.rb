@@ -22,6 +22,9 @@ class RailFenceCipher
   end
 
   class << self
+
+    private
+
     def invalid?(phrase, rails)
       phrase == '' || rails > phrase.length || rails == 1
     end
@@ -39,7 +42,7 @@ class RailFenceCipher
     def find_rails(chars)
       first = (chars.length / 4.0).ceil
       second = chars.length / 2
-      third = chars.length / 4
+      third = chars.length.even? ? chars.length / 4 : first
       [chars[0, first], chars[first, second], chars[-third..-1]]
     end
 
@@ -61,6 +64,6 @@ class RailFenceCipher
       [top, middle, bottom].join
     end
   end
-  
+
   VERSION = 1
 end
