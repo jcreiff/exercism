@@ -1,76 +1,61 @@
+module SayArray
+  refine Array do
+    def clear_zeros
+      shift until first != 0
+      self
+    end
+  end
+end
 
 class Say
+  MIN = 0
+  MAX = 999_999_999_999
+  SINGLE_DIGITS = ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'].freeze
+  TEENS = %w[ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen].freeze
+  MULTIPLES_OF_TEN = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'].freeze
+  SUFFIXES = ['', ' thousand', ' million', ' billion'].freeze
 
   def initialize(number)
-    @number=number
-    @num_array=@number.to_s.split("")
-    @size=@num_array.count
-    @num_hash={}
-    @phrase=""
+    @number = number
+    @in_range = (MIN...MAX).cover?(number)
   end
 
   def in_english
-    exception_check
-    split_num_array
-    @num_hash.each do |key, set|
-      words = (set.size == 3 ? construct_three_digits(set) : set.size == 2 ? construct_two_digits(set) : single_digits[set.first])
-      @phrase.prepend(words + appendages[key]) unless words.empty?
-    end
-    @phrase.strip
+    raise ArgumentError, 'Number out of range' unless @in_range
+    return 'zero' if @number.zero?
+    numbers.map.with_index { |set, i| subset(set, i) }.reverse.join(' ').strip
   end
 
-  def exception_check
-    raise ArgumentError, "number must be positive" if @number<0
-    raise ArgumentError, "number is too big" if @size>12
+  private
+
+  using SayArray
+  def numbers
+    @number.digits.each_slice(3).to_a.map(&:reverse).map(&:clear_zeros)
   end
 
-  def split_num_array
-    count = 0
-    (@size/3.0).ceil.times do
-      if @num_array.length > 3
-        @num_hash[count]=@num_array[-3..-1]
-        @num_array.slice!(-3..-1)
-        count+=1
-      else
-        @num_hash[count]=@num_array
-      end
-    end
+  def subset(digits, i)
+    [to_words(digits), digits.empty? ? '' : SUFFIXES[i]].join
   end
 
-  def construct_three_digits(digits)
-    hundreds = (digits.first == "0" ? "" : single_digits[digits.first] + " hundred ")
-    digits[1] == "0" ? (digits[2] == "0" ? hundreds.strip : hundreds + single_digits[digits[2]]) : hundreds + construct_two_digits(digits[1..2])
+  def to_words(digits)
+    send("write_#{digits.count}_digit", digits)
   end
 
-  def construct_two_digits(digits)
-    if digits.first == "1"
-      teens[digits.join("")]
-    elsif digits.last == "0"
-      multiples_of_ten[digits.first]
-    else
-      multiples_of_ten[digits.first] + "-" + single_digits[digits.last]
-    end
+  def write_0_digit(_digits) end
+
+  def write_1_digit(digits, i = -1)
+    SINGLE_DIGITS[digits[i]]
   end
 
-  def single_digits
-    {"0" => "zero", "1"=>"one", "2"=>"two", "3"=>"three", "4"=>"four", "5"=>"five",
-      "6"=>"six", "7"=>"seven", "8"=>"eight", "9"=>"nine"}
+  def write_2_digit(digits)
+    return TEENS[digits.join.to_i - 10] if digits.first == 1
+    divider = digits.last.zero? ? '' : '-'
+    [MULTIPLES_OF_TEN[digits.first], write_1_digit(digits)].join(divider)
   end
 
-  def teens
-    {"10"=>"ten", "11"=>"eleven", "12"=>"twelve", "13"=>"thirteen", "14"=>"fourteen", "15"=>"fifteen",
-      "16"=>"sixteen", "17"=>"seventeen", "18"=>"eighteen", "19"=>"nineteen"}
+  def write_3_digit(digits)
+    [write_1_digit(digits, 0), 'hundred', write_2_digit(digits[1, 2])].join(' ')
   end
-
-  def multiples_of_ten
-    {"2"=>"twenty", "3"=>"thirty", "4"=>"forty", "5"=>"fifty", "6"=>"sixty",
-      "7"=>"seventy", "8"=>"eighty", "9"=>"ninety"}
-  end
-
-  def appendages
-    {0=>"", 1=>" thousand ", 2=>" million ", 3=>" billion "}
-  end
-
 end
 
 module BookKeeping
