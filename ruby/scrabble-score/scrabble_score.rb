@@ -4,8 +4,7 @@ class Scrabble
   end
 
   def score
-    return 0 unless @word =~ /\w/
-    @word.upcase.chars.map { |letter| LETTER_SCORES[letter] }.reduce(:+)
+    @word.to_s.upcase.scan(/[A-Z]/).sum(&LETTER_SCORES.method(:[]))
   end
 
   def self.score(word)
