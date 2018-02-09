@@ -49,7 +49,7 @@ class Say
 
   def write_2_digit(digits)
     return TEENS[digits.join.to_i - 10] if digits.first == 1
-    divider = digits.last.zero? ? '' : '-'
+    divider = digits.any?(&:zero?) ? '' : '-'
     [MULTIPLES_OF_TEN[digits.first], write_1_digit(digits)].join(divider)
   end
 
