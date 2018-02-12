@@ -1,16 +1,19 @@
 class Robot
-  attr_accessor :name
-  ALPHA = ('A'..'Z').to_a
-  NUMERIC = (0..9).to_a
+  ALPHA = ('A'..'Z').to_a.repeated_permutation(2)
+  NUMERIC = (0..9).to_a.repeated_permutation(3)
 
-  @@names = []
+  @@names = ALPHA.flat_map { |alpha| NUMERIC.map { |num| [alpha, num].join } }
+
+  attr_reader :name
 
   def initialize
-    @name = [ALPHA.sample(2), NUMERIC.sample(3)].join
-    @@names.include?(@name) ? reset : @@names.push(@name)
+    @name = @@names[@@next_name]
+    @@next_name += 1
   end
 
-  def self.forget; end
+  def self.forget
+    @@next_name = 0
+  end
 
   def reset
     initialize
