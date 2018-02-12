@@ -1,10 +1,7 @@
 class Robot
-  ALPHA = ('A'..'Z').to_a.repeated_permutation(2)
-  NUMERIC = (0..9).to_a.repeated_permutation(3)
-
-  @@names = ALPHA.flat_map { |alpha| NUMERIC.map { |num| [alpha, num].join } }
-
   attr_reader :name
+
+  @@names = ('AA000'..'ZZ999').to_a
 
   def initialize
     @name = @@names[@@next_name]
