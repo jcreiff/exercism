@@ -1,15 +1,28 @@
+class NameMaker
+  @@all_names = ('AA000'..'ZZ999').to_a
+  @@next_name = -1
+
+  def make_name
+    @@next_name += 1
+    @@all_names[@@next_name]
+  end
+
+  def forget
+    @@next_name = -1
+  end
+end
+
 class Robot
   attr_reader :name
 
-  @@names = ('AA000'..'ZZ999').to_a
+  @@generator = NameMaker.new
 
   def initialize
-    @name = @@names[@@next_name]
-    @@next_name += 1
+    @name = @@generator.make_name
   end
 
   def self.forget
-    @@next_name = 0
+    @@generator.forget
   end
 
   def reset
