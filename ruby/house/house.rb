@@ -1,14 +1,10 @@
 class House
-  def self.recite(verse = 0, lyrics = '')
-    lyrics += 'This is the '
-    index = verse
-    until index < 0
-      lyrics += VARIATIONS[index]
-      index -= 1
-    end
-    return lyrics if verse == VARIATIONS.length - 1
-    lyrics += "\n"
-    recite(verse + 1, lyrics)
+  def self.recite
+    (0..11).map { |i| verse(i) }.join("\n")
+  end
+
+  def self.verse(number)
+    'This is the ' + number.downto(0).map(&VARIATIONS.method(:[])).join
   end
 
   VARIATIONS = ["house that Jack built.\n", "malt\nthat lay in the ",
