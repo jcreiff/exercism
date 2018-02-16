@@ -1,19 +1,28 @@
 class SecretHandshake
-  attr_reader :commands
-
-  def initialize(num)
-    @commands = to_binary(num.to_i)
+  def initialize(number)
+    @number = number.to_i
+    @binary = to_binary(@number)
   end
 
-  def to_binary(num, handshake = [])
-    [16, 8, 4, 2, 1].each_with_index do |i, index|
-      next if num - i < 0
-      handshake.unshift(ACTIONS[index])
-      num -= i
-      break if num.zero?
+  def commands
+    shake = @binary.reverse[0...-1]
+                   .map.with_index { |num, i| ACTIONS[i] if num == 1 }
+                   .compact
+    @binary.first.zero? ? shake : shake.reverse
+  end
+
+  private
+
+  def to_binary(number)
+    [16, 8, 4, 2, 1].each_with_object([]) do |i, set|
+      if number - i < 0
+        set.push(0)
+      else
+        set.push(1)
+        number -= i
+      end
     end
-    handshake.last == 'reverse' ? handshake[0...-1].reverse : handshake
   end
 
-  ACTIONS = %w[reverse jump close\ your\ eyes double\ blink wink].freeze
+  ACTIONS = %w[wink double\ blink close\ your\ eyes jump].freeze
 end
