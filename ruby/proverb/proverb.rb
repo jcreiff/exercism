@@ -4,10 +4,8 @@ class Proverb
     @qualifier = qualifier
   end
 
-  def to_s(output = '', index = 0)
-    return output if index == @items.length
-    output += (index == @items.length - 1 ? last_line(@items.first) : line(@items[index, 2]))
-    to_s(output, index + 1)
+  def to_s
+    (@items.each_cons(2).map { |set| line(set) } << last_line(@items[0])).join
   end
 
   private
@@ -17,6 +15,6 @@ class Proverb
   end
 
   def last_line(item)
-    "And all for the want of a #{@qualifier + ' ' unless @qualifier.nil?}#{item}."
+    "And all for the want of a #{@qualifier + ' ' if @qualifier}#{item}."
   end
 end
