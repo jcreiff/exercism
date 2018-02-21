@@ -25,12 +25,9 @@ class OcrNumbers
 
   def convert
     return convert_multiline if @multiline
-    raise ArgumentError unless @rows.length == 4 || @commas
-    raise ArgumentError if @rows.any? { |row| row.length % 3 != 0 }
-    @rows.map { |row| row.scan(/.{3}/) }
-         .transpose
-         .map { |number| OcrNumber.new(number).translate }
-         .join
+    check_validity
+    @rows.map { |row| row.scan(/.{3}/) }.transpose
+         .map { |number| OcrNumber.new(number).translate }.join
   end
 
   def self.convert(text)
@@ -38,6 +35,11 @@ class OcrNumbers
   end
 
   private
+
+  def check_validity
+    raise ArgumentError unless @rows.length == 4 || @commas
+    raise ArgumentError if @rows.any? { |row| row.length % 3 != 0 }
+  end
 
   def convert_multiline
     @text.split(REGEX).map { |set| OcrNumbers.new(set, true).convert }.join(',')
