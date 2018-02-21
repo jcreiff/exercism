@@ -16,16 +16,16 @@ end
 class OcrNumbers
   REGEX = /\n\s+\n/
 
-  def initialize(text, second = false)
+  def initialize(text, commas = false)
     @text = text
     @rows = text.split("\n")
     @multiline = text =~ REGEX
-    @second = second
+    @commas = commas
   end
 
   def convert
     return convert_multiline if @multiline
-    raise ArgumentError unless @rows.length == 4 || @second
+    raise ArgumentError unless @rows.length == 4 || @commas
     raise ArgumentError if @rows.any? { |row| row.length % 3 != 0 }
     @rows.map { |row| row.scan(/.{3}/) }
          .transpose
@@ -33,12 +33,14 @@ class OcrNumbers
          .join
   end
 
-  def convert_multiline
-    @text.split(REGEX).map { |set| OcrNumbers.new(set, true).convert }.join(',')
-  end
-
   def self.convert(text)
     OcrNumbers.new(text).convert
+  end
+
+  private
+
+  def convert_multiline
+    @text.split(REGEX).map { |set| OcrNumbers.new(set, true).convert }.join(',')
   end
 end
 
