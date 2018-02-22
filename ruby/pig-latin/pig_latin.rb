@@ -1,16 +1,16 @@
 class PigLatin
+  REGEX = /^s?qu|^y(?!t)|(?!xr)^[^aeiouy]+/
+
   def self.translate(input)
-    input.split.map { |word| modify(word) }.join(' ')
+    input.split.map { |word| piglatinize(word) }.join(' ')
   end
 
-  def self.modify(word, displaced = '')
-    displaced += word.slice!(0) until end_of_sound?(word, displaced) || word.length == 1
-    word + displaced + 'ay'
+  def self.piglatinize(word)
+    displaced = word.match(REGEX)
+    word.sub(REGEX, '') + displaced.to_s + 'ay'
   end
 
-  def self.end_of_sound?(word, displaced)
-    ('aeiou'.include?(word[0]) && [word[0], displaced[-1]] != %w[u q]) || %w[yt xr].include?(word[0..1])
-  end
+  private_class_method :piglatinize
 end
 
 module BookKeeping
