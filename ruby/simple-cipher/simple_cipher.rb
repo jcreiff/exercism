@@ -2,32 +2,26 @@ class Cipher
   attr_reader :key
 
   ALPHA = ('a'..'z').to_a
+  RANDOM_KEY = Enumerator.new { |yielder| loop { yielder.yield ALPHA.sample } }
 
-  def initialize(input = nil)
-    @key = generate_key(input)
-    @key_codes = generate_codes(@key)
+  def initialize(key = RANDOM_KEY.take(100).join)
+    raise ArgumentError, 'Invalid Key' unless key =~ /\A[a-z]+\z/
+    @key = key
   end
 
-  [[:encode, :+], [:decode, :-]].each do |name, operation|
-    define_method(name) do |phrase|
-      manipulate_text(phrase, operation).join
-    end
+  Hash[:encode, :+, :decode, :-].each do |name, operation|
+    define_method(name) { |phrase| manipulate_text(phrase, operation) }
   end
 
   private
 
-  def generate_key(input)
-    raise ArgumentError, 'Invalid Key' if input =~ /[^a-z]/ || input == ''
-    input || ALPHA.sample * 100
-  end
-
-  def generate_codes(phrase)
-    phrase.chars.map { |char| ALPHA.index(char) }
-  end
-
   def manipulate_text(phrase, operation)
-    generate_codes(phrase).map.with_index do |index1, index2|
-      ALPHA[index1.send(operation, @key_codes[index2]) % 26]
+    indexes(phrase).zip(indexes(@key)).reduce('') do |memo, (a, b)|
+      memo + ALPHA[a.send(operation, b) % 26]
     end
+  end
+
+  def indexes(phrase)
+    phrase.chars.map(&ALPHA.method(:index))
   end
 end
