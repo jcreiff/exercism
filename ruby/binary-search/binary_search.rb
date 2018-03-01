@@ -1,30 +1,18 @@
 class BinarySearch
   attr_reader :list, :middle
 
-  def initialize(list)
+  def initialize(list, indexes = (0...list.count).to_a)
     raise ArgumentError, 'Invalid list' if list.sort != list
     @list = list
-    @middle = find_middle(list)
+    @middle = list.count / 2
+    @indexes = indexes
   end
 
-  def find_middle(set)
-    set.count / 2
-  end
-
-  def search_for(item, position = middle, search_index = middle, search_list = list.dup)
-    raise RuntimeError if search_list == []
-    result = item <=> search_list[search_index]
-    if result == 1
-      search_list.slice!(0..search_index)
-      search_index = find_middle(search_list)
-      position += search_index + 1
-    elsif result == -1
-      search_list.slice!(search_index..-1)
-      search_index = find_middle(search_list)
-      search_list.count.even? ? position -= search_index : position -= search_index + 1
-    else
-      return position
-    end
-    search_for(item, position, search_index, search_list)
+  def search_for(i)
+    raise RuntimeError if list.empty?
+    result = i <=> list[middle]
+    return @indexes[middle] if result.zero?
+    range = result == 1 ? [middle + 1..-1] : [0...middle]
+    BinarySearch.new(*[list, @indexes].map { |set| set[*range] }).search_for(i)
   end
 end
