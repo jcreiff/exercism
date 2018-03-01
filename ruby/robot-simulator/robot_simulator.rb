@@ -1,48 +1,45 @@
 class Robot
-  attr_accessor :bearing_index, :bearing, :coordinates
-
-  def initialize
-    @bearing_index = nil
-    @bearing = nil
-    @coordinates = []
-  end
+  attr_accessor :bearing, :coordinates
 
   def orient(direction)
     raise ArgumentError, 'Invalid orientation' unless ORIENTATIONS.include?(direction)
-    self.bearing_index = ORIENTATIONS.index(direction)
-    find_bearing(bearing_index)
+    @bearing_index = ORIENTATIONS.index(direction)
+    set_bearing
   end
 
-  def find_bearing(bearing_index)
-    self.bearing = ORIENTATIONS[(bearing_index % 4)]
-  end
-
-  def turn_right
-    find_bearing(self.bearing_index += 1)
-  end
-
-  def turn_left
-    find_bearing(self.bearing_index -= 1)
-  end
-
-  def at(x, y)
-    [x, y].each { |num| coordinates << num }
-  end
-
-  def advance
-    if bearing_index.even?
-      bearing == :north ? self.coordinates[1]+=1 : self.coordinates[1]-=1
-    else
-      bearing == :east ? self.coordinates[0]+=1 : self.coordinates[0]-=1
+  [%i[turn_right +], %i[turn_left -]].each do |name, operation|
+    define_method(name) do
+      @bearing_index = @bearing_index.send(operation, 1)
+      set_bearing
     end
   end
 
+  def at(x, y)
+    @coordinates = [x, y]
+  end
+
+  def advance
+    at(*set_coordinates)
+  end
+
+  private
+
+  def set_bearing
+    @bearing = ORIENTATIONS[(@bearing_index % 4)]
+  end
+
+  def set_coordinates
+    axis, change = MOVEMENTS[@bearing]
+    @coordinates.map.with_index { |c, i| i == axis ? c.send(change, 1) : c }
+  end
+
   ORIENTATIONS = %i[north east south west].freeze
+  MOVEMENTS = Hash[ORIENTATIONS.zip([[1, :+], [0, :+], [1, :-], [0, :-]])]
 end
 
 class Simulator
   def instructions(list)
-    list.chars.map { |step| INSTRUCTIONS[step] }
+    list.chars.map(&INSTRUCTIONS.method(:[]))
   end
 
   def place(robot, x: 0, y: 0, direction: :north)
@@ -50,9 +47,9 @@ class Simulator
     robot.orient(direction)
   end
 
-  def evaluate(robot, directions)
-    instructions(directions).each { |instruction| robot.send(instruction) }
+  def evaluate(robot, list)
+    instructions(list).each { |instruction| robot.send(instruction) }
   end
 
-  INSTRUCTIONS = {'L' => :turn_left, 'R' => :turn_right, 'A' => :advance}.freeze
+  INSTRUCTIONS = Hash['L', :turn_left, 'R', :turn_right, 'A', :advance]
 end
