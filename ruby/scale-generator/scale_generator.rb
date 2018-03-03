@@ -14,20 +14,16 @@ class Scale
 
   private
 
-  def adjust(notes)
-    notes.dup.rotate(notes.index(root))
-  end
-
   def uses_flats?
     root =~ /b/ || root == 'F' || mode == :locrian || mode == :harmonic_minor
   end
 
-  def find_notes(notes)
-    map_steps(notes.rotate(notes.index(root))).uniq
+  def adjust(notes)
+    notes.dup.rotate(notes.index(root))
   end
 
-  def map_steps(notes)
-    @steps.chars.map { |step| notes.rotate!(INTERVALS[step]).first }
+  def find_notes(notes)
+    @steps.chars.map { |step| notes.rotate!(INTERVALS[step]).first }.uniq
   end
 
   FLATS = %w[C Db D Eb E F Gb G Ab A Bb B].freeze
