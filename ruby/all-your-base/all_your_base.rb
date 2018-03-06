@@ -5,27 +5,17 @@ class BaseConverter
     return digits if digits.empty?
     return [0] if digits.all?(&:zero?)
     value = find_value(input_base, digits.reverse)
-    factors = find_factors(output_base, value)
-    new_digits(value, factors)
+    new_digits(value, output_base)
   end
 
   def self.find_value(input_base, digits)
     (0...digits.size).map { |i| digits[i] * (input_base**i) }.sum
   end
 
-  def self.find_factors(output_base, value, power = 0, factors = [])
-    until output_base**power > value
-      factors << output_base**power
-      power += 1
-    end
-    factors
-  end
-
-  def self.new_digits(value, factors)
-    factors.reverse.map do |factor|
-      digit, value = value.divmod(factor)
-      digit
-    end
+  def self.new_digits(value, output_base, digits = [])
+    return digits.unshift(value) if value < output_base
+    value, digit = value.divmod(output_base)
+    new_digits(value, output_base, digits.unshift(digit))
   end
 end
 
