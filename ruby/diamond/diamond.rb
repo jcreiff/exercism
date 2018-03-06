@@ -1,14 +1,11 @@
 class Diamond
-  attr_reader :middle_letter, :middle_row
-
-  def initialize(middle_letter)
-    @middle_letter = middle_letter
-    @middle_row = row(middle_letter)
+  def initialize(letter)
+    @letter = letter
+    @middle = row(letter)
   end
 
   def make_diamond
-    return "A\n" if middle_letter == 'A'
-    [half, middle_row, half.reverse].join("\n") + "\n"
+    @middle == 'A' ? "A\n" : mirror(half, [@middle]).join("\n") + "\n"
   end
 
   def self.make_diamond(letter)
@@ -17,13 +14,16 @@ class Diamond
 
   private
 
-  def half
-    ('A'...middle_letter).map { |letter| row(letter).center(@middle_row.size) }
+  def row(letter)
+    letter == 'A' ? 'A' : mirror(letter, (' ' * (ALPHA.index(letter) * 2 - 1)))
   end
 
-  def row(letter)
-    return letter if letter == 'A'
-    letter + (' ' * (ALPHA.index(letter) * 2 - 1)) + letter
+  def mirror(object, spacer)
+    object + spacer + object.reverse
+  end
+
+  def half
+    ('A'...@letter).map { |letter| row(letter).center(@middle.size) }
   end
 
   ALPHA = ('A'..'Z').to_a
