@@ -1,33 +1,15 @@
 class Tournament
-  attr_reader :results, :teams, :games
-
   def initialize(results)
     @results = results.lines.map(&:chomp).map { |line| line.split(';') }
-    @teams = {}
-    @games = []
+    @teams = @results.flat_map { |result| result[0, 2] }
+                     .uniq.map { |name| Team.new(name) }
+    @games = @results.map { |t1, t2, result| Game.new(t1, t2, result) }
   end
 
   def tally
-    create_teams
-    return Scoreboard::HEADER if teams.empty?
-    create_games
-    score_games
-    Scoreboard.display(teams)
-  end
-
-  def create_teams
-    results.flat_map { |result| result[0, 2] }.uniq
-           .map { |name| teams[name] = Team.new(name) }
-  end
-
-  def create_games
-    results.each do |team1, team2, result|
-      games << Game.new(teams[team1], teams[team2], result)
-    end
-  end
-
-  def score_games
-    games.each { |game| TournamentScorer.score_game(game) }
+    return Scoreboard::HEADER if @teams.empty?
+    TournamentScorer.new(@games, @teams).score_games
+    Scoreboard.display(@teams)
   end
 
   def self.tally(results)
@@ -69,29 +51,36 @@ class Game
 end
 
 class TournamentScorer
-  def self.score_game(game)
-    if game.result == 'draw'
-      game.teams.map { |team| team.draws += 1 }
-    else
-      game.winner.wins += 1
-      game.loser.losses += 1
+  def initialize(games, teams)
+    @games = games
+    @teams = teams
+  end
+
+  def score_games
+    @games.each do |game|
+      if game.result == 'draw'
+        game.teams.each { |name| @teams.find { |t| t.name == name }.draws += 1 }
+      else
+        @teams.find { |team| team.name == game.winner }.wins += 1
+        @teams.find { |team| team.name == game.loser }.losses += 1
+      end
     end
   end
 end
 
 class Scoreboard
-  HEADER = 'Team' + (' ' * 27) + "| MP |  W |  D |  L |  P\n"
+  HEADER = "Team                           | MP |  W |  D |  L |  P\n".freeze
   DIVIDER = ' |  '.freeze
 
   def self.display(teams)
-    HEADER + sort(teams.values).map { |team| line(team) }.join("\n") + "\n"
+    HEADER + sort(teams).map { |team| stat_line(team) }.join("\n") + "\n"
   end
 
   def self.sort(teams)
     teams.sort_by { |team| [-team.points, team.name] }
   end
 
-  def self.line(team)
+  def self.stat_line(team)
     [team.name.ljust(30), team.matches_played, team.wins, team.draws,
      team.losses, team.points].join(DIVIDER)
   end
