@@ -9,31 +9,24 @@ class ComplexNumber
   alias real a
   alias imaginary b
 
-  def *(other)
-    ComplexNumber.new(a * other.a - b * other.b, b * other.a + a * other.b)
-  end
-
-  def /(other)
-    ComplexNumber.new((a * other.a + b * other.b) / other.sum_of_squares.to_f,
-                      (b * other.a - a * other.b) / other.sum_of_squares.to_f)
-  end
-
-  %i[+ -].each do |symbol|
-    define_method(symbol) do |other|
-      ComplexNumber.new(a.send(symbol, other.a), b.send(symbol, other.b))
+  %i[+ - * / conjugate exp].each do |symbol|
+    define_method(symbol) do |other = self|
+      ComplexNumber.new(*operations(other)[symbol])
     end
+  end
+
+  def operations(other)
+    { :+ => [a + other.a, b + other.b],
+      :- => [a - other.a, b - other.b],
+      :* => [a * other.a - b * other.b, b * other.a + a * other.b],
+      :/ => [(a * other.a + b * other.b) / other.sum_of_squares.to_f,
+             (b * other.a - a * other.b) / other.sum_of_squares.to_f],
+      :conjugate => [a, -b],
+      :exp => [Math.exp(a) * (Math.cos(b) + Math.sin(b)).round, 0] }
   end
 
   def abs
     Math.sqrt(sum_of_squares)
-  end
-
-  def conjugate
-    ComplexNumber.new(a, -b)
-  end
-
-  def exp
-    ComplexNumber.new(Math.exp(a) * (Math.cos(b) + Math.sin(b)).round, 0)
   end
 
   def ==(other)
