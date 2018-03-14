@@ -1,7 +1,7 @@
 var TwoFer = function () {};
 
-TwoFer.prototype.twoFer = function (who = 'you') {
-	return 'One for ' + who + ', one for me.';
+TwoFer.prototype.twoFer = function (who) {
+	return `One for ${ who || 'you' }, one for me.`;
 };
 
 module.exports = TwoFer;
