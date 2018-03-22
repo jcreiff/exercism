@@ -1,25 +1,16 @@
-class School {
-  constructor(){
-    this.students = {};
-  }
+module.exports = function School(){
+  let students = {};
 
-  add(student, grade){
-    if (this.students[grade]){
-      this.students[grade].push(student);
-      this.students[grade].sort();
+  this.add = function(student, grade){
+    if(students[grade]){
+      students[grade].push(student);
+      students[grade].sort();
     }
-    else {
-      this.students[grade] = [student];
+    else{
+      students[grade] = [student];
     }
-  }
+  };
 
-  grade(level){
-    return this.students[level] || [];
-  }
-
-  roster(){
-    return this.students;
-  }
-}
-
-module.exports = School;
+  this.grade = (level) => students[level] || [];
+  this.roster = () => students;
+};
