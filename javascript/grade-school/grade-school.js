@@ -1,24 +1,25 @@
-var School = function() {
-  var roster = {};
-  this.roster = fullRoster;
-
-  function fullRoster() {
-    return roster;
+class School {
+  constructor(){
+    this.students = {};
   }
 
-  School.prototype.add = function (student, grade){
-    if (roster[grade] == undefined){
-      roster[grade] = [student];
+  add(student, grade){
+    if (this.students[grade]){
+      this.students[grade].push(student);
+      this.students[grade].sort();
     }
     else {
-      roster[grade].push(student);
-      roster[grade].sort();
+      this.students[grade] = [student];
     }
-  };
+  }
 
-  School.prototype.grade = function(level){
-    return roster[level]==undefined ? [] : roster[level];
-  };
-};
+  grade(level){
+    return this.students[level] || [];
+  }
+
+  roster(){
+    return this.students;
+  }
+}
 
 module.exports = School;
