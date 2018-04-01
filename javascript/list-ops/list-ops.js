@@ -62,12 +62,11 @@ List.prototype.foldr = function(operation, total){
 };
 
 List.prototype.reverse = function(){
-  let values = new Array(this.values.length);
-  this.values.forEach(function(item, index){
-    values[values.length - index - 1] = item;
-  });
-  this.values = values;
-  return this;
+  let values = [];
+  for(var i = this.length() - 1; i >= 0; i--){
+    values.push(this.values[i]);
+  }
+  return new List(values);
 };
 
 module.exports = List;

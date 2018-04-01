@@ -124,7 +124,7 @@ describe('List', function () {
     });
   });
 
-  xdescribe('must not call native Array function', function () {
+  describe('must not call native Array function', function () {
     var list = new List([1, 2, 3, 4]);
     var list2 = new List([5, 1]);
 
@@ -146,22 +146,22 @@ describe('List', function () {
       list.foldr(divide, 24);
     });
 
-    xit('Array.prototype.map()', function () {
+    it('Array.prototype.map()', function () {
       expect(list.values.map).not.toHaveBeenCalled();
     });
-    xit('Array.prototype.filter()', function () {
+    it('Array.prototype.filter()', function () {
       expect(list.values.filter).not.toHaveBeenCalled();
     });
-    xit('Array.prototype.reduce()', function () {
+    it('Array.prototype.reduce()', function () {
       expect(list.values.reduce).not.toHaveBeenCalled();
     });
-    xit('Array.prototype.reduceRight()', function () {
+    it('Array.prototype.reduceRight()', function () {
       expect(list.values.reduceRight).not.toHaveBeenCalled();
     });
-    xit('Array.prototype.concat()', function () {
+    it('Array.prototype.concat()', function () {
       expect(list.values.concat).not.toHaveBeenCalled();
     });
-    xit('Array.prototype.reverse()', function () {
+    it('Array.prototype.reverse()', function () {
       expect(list.values.reverse).not.toHaveBeenCalled();
     });
   });
