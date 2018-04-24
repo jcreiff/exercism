@@ -1,5 +1,5 @@
 class Array
-  def accumulate(&block)
+  def accumulate
     return to_enum(:accumulate) unless block_given?
     Array.new(size) { |index| yield self[index] }
   end
