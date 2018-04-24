@@ -9,7 +9,7 @@ class Scale
   end
 
   def pitches
-    uses_flats? ? find_notes(adjust(FLATS)) : find_notes(adjust(SHARPS))
+    find_notes(modulate(uses_flats? ? FLATS : SHARPS))
   end
 
   private
@@ -18,8 +18,8 @@ class Scale
     root =~ /b/ || root == 'F' || mode == :locrian || mode == :harmonic_minor
   end
 
-  def adjust(notes)
-    notes.dup.rotate(notes.index(root))
+  def modulate(notes)
+    notes.rotate(notes.index(root))
   end
 
   def find_notes(notes)
