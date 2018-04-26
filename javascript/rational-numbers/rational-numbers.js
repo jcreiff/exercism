@@ -36,8 +36,7 @@ Rational.prototype.exprational = function(power) {
 };
 
 Rational.prototype.expreal = function(real) {
-  var numerator = Math.pow(real, this.a);
-  return this.b === 3 ? Math.cbrt(numerator) : Math.sqrt(numerator);
+  return Math.pow(10.0, Math.log10(Math.pow(real, this.a)) / this.b);
 };
 
 Rational.prototype.reduce = function() {
