@@ -6,7 +6,7 @@ class Affine
     raise ArgumentError if [2, 13].any? { |i| (a % i).zero? }
     @a = a
     @b = b
-    @mmi = (1..100).find { |i| i * a % 26 == 1 }
+    @mmi = (1..26).find { |i| i * a % 26 == 1 }
   end
 
   def encode(text)
