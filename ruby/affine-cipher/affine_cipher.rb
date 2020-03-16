@@ -3,7 +3,7 @@ class Affine
   ALPHA = ('a'..'z').to_a
 
   def initialize(a, b)
-    raise ArgumentError if [2, 13].any? { |i| (a % i).zero? }
+    raise ArgumentError if a.gcd(26) != 1
     @a = a
     @b = b
     @mmi = (1..26).find { |i| i * a % 26 == 1 }
