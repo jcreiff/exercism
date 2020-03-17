@@ -14,14 +14,22 @@ class Zipper
     @parents = parents
   end
 
-  def left
-    return unless focus.left
-    self.class.new(tree, focus.left, parents.push(focus))
+  %i[left right].each do |prop|
+    define_method(prop) do
+      return unless focus[prop]
+      self.class.new(tree, focus[prop], parents.push(focus))
+    end
   end
 
-  def right
-    return unless focus.right
-    self.class.new(tree, focus.right, parents.push(focus))
+  def value
+    focus.value
+  end
+
+  %i[left right value].each do |prop|
+    define_method("set_#{prop}") do |i|
+      focus[prop] = i
+      self
+    end
   end
 
   def up
@@ -29,26 +37,7 @@ class Zipper
     self.class.new(tree, parents[-1], parents[0...-1])
   end
 
-  def value
-    focus.value
-  end
-
-  def set_value(new_value)
-    focus.value = new_value
-    self
-  end
-
-  def set_left(node)
-    focus.left = node
-    self
-  end
-
-  def set_right(node)
-    focus.right = node
-    self
-  end
-
   def ==(other)
-    [other.value, other.left, other.right] == [value, left, right]
+    to_tree == other.to_tree
   end
 end
