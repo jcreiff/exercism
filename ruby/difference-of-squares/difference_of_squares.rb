@@ -2,15 +2,15 @@ class Squares
   attr_reader :num_range
 
   def initialize(num)
-    @num_range = (1..num).to_a
+    @num_range = (1..num)
   end
 
   def square_of_sum
-    num_range.reduce(:+)**2
+    num_range.sum**2
   end
 
   def sum_of_squares
-    num_range.map { |i| i**2 }.reduce(:+)
+    num_range.sum { |i| i**2 }
   end
 
   def difference
