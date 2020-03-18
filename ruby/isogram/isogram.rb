@@ -1,7 +1,7 @@
 class Isogram
   def self.isogram?(phrase)
     phrase.downcase!
-    phrase.scan(/[a-z]/).all? { |letter| phrase.count(letter) == 1 }
+    phrase.scan(/[a-z]/).tally.all? { _2 == 1 }
   end
 end
 
