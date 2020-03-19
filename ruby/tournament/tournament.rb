@@ -17,8 +17,9 @@ class Tournament
   private
 
   def update_results
-    team_names = @results.flatten.uniq.reject { %w[win loss draw].include?(_1) }
-    team_names.map { @teams[_1] = Team.new(_1, 0, 0, 0, 0, 0) }
+    @results.flatten.uniq.filter_map do
+      @teams[_1] = Team[_1, 0, 0, 0, 0, 0] unless %w[win loss draw].include?(_1)
+    end
     @results.map! { |t1, t2, result| [@teams[t1], @teams[t2], result] }
   end
 
