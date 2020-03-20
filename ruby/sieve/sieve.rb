@@ -1,19 +1,9 @@
 class Sieve
-  attr_reader :upper_bound
-
-  def initialize(upper_bound)
-    @upper_bound = upper_bound
+  def initialize(max)
+    @range = (2..max).to_a
   end
 
-  def primes(divisor = 2, list = (2..upper_bound).to_a)
-    return list if list.empty?
-    list.delete_if { |num| (num % divisor).zero? && num != divisor }
-    divisor == 2 ? divisor += 1 : divisor += 2
-    divisor += 2 until list.include?(divisor) || divisor > (upper_bound / 2)
-    divisor > (upper_bound / 2) ? list : primes(divisor, list)
+  def primes
+    @range.each { |n1| @range.reject! { |n2| n2 != n1 && (n2 % n1).zero? } }
   end
-end
-
-module BookKeeping
-  VERSION = 1
 end
