@@ -1,17 +1,9 @@
 class RunLengthEncoding
   def self.encode(input)
-    input.chars.chunk(&:itself).map do |char, set|
-      [(set.count == 1 ? '' : set.count), char]
-    end.join
+    input.chars.chunk(&:itself).map { [_2[1] ? _2.count : '', _1] }.join
   end
 
   def self.decode(input)
-    input.scan(/(\d*)(\D)/).map do |num, char|
-      char * (num.empty? ? 1 : num.to_i)
-    end.join
+    input.scan(/(\d*)(\D)/).map { _2 * (_1.empty? ? 1 : _1.to_i) }.join
   end
-end
-
-module BookKeeping
-  VERSION = 3
 end
