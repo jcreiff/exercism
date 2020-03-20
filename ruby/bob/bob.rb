@@ -1,37 +1,34 @@
-class Bob
-  attr_reader :remark
+module BobBrain
+  refine String do
+    def shouting?
+      check = dup.gsub(/[^A-Za-z]/, '')
+      !check.empty? && check == check.upcase
+    end
 
-  def initialize(remark)
-    @remark = remark.strip
-  end
+    def question?
+      self[-1] == '?'
+    end
 
-  def analyze
-    return 'Whoa, chill out!' if shouting?
-    return 'Sure.' if question?
-    return 'Fine. Be that way!' if silence?
-    'Whatever.'
-  end
-
-  def self.hey(remark)
-    Bob.new(remark).analyze
-  end
-
-  private
-
-  def shouting?
-    letters = remark.gsub(/[^A-Za-z]/, '')
-    !letters.empty? && letters.chars.all? { |char| ('A'..'Z').cover?(char) }
-  end
-
-  def question?
-    remark[-1] == '?'
-  end
-
-  def silence?
-    remark.empty?
+    def silence?
+      empty?
+    end
   end
 end
 
-module BookKeeping
-  VERSION = 1
+class Bob
+  using BobBrain
+  def self.hey(remark)
+    case remark.strip
+    when -> { _1.shouting? && _1.question? }
+      "Calm down, I know what I'm doing!"
+    when -> { _1.shouting? }
+      'Whoa, chill out!'
+    when -> { _1.question? }
+      'Sure.'
+    when -> { _1.silence? }
+      'Fine. Be that way!'
+    else
+      'Whatever.'
+    end
+  end
 end
