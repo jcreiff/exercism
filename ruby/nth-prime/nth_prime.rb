@@ -1,30 +1,28 @@
 class Prime
-  attr_reader :num, :primes
-  attr_accessor :next_num
-
-  def initialize(num)
-    @num = num
-    @primes = [2]
-    @next_num = 3
+  def initialize
+    @primes = [2, 3]
   end
 
-  def nth
-    raise ArgumentError, 'Invalid input' if num < 1
-    add_primes until primes.length == num
-    primes.last
+  def nth(n)
+    raise ArgumentError, 'Invalid input' if n < 1
+    next_num = @primes[-1] + 2
+    while @primes.length < n
+      @primes << next_num if prime?(next_num)
+      next_num += 2
+    end
+    @primes[n - 1]
   end
 
-  def add_primes
-    upper_bound = Math.sqrt(next_num).floor
-    primes << next_num unless (2..upper_bound).any? { |n| (next_num % n).zero? }
-    self.next_num += 2
+  def self.nth(n)
+    new.nth(n)
   end
 
-  def self.nth(num)
-    Prime.new(num).nth
-  end
-end
+  private
 
-module BookKeeping
-  VERSION = 1
+  def prime?(num)
+    @primes.all? do
+      return true if _1 > Math.sqrt(num)
+      num % _1 != 0
+    end
+  end
 end
