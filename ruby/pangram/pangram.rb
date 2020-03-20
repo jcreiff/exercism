@@ -1,13 +1,6 @@
-require 'set'
-
 class Pangram
   def self.pangram?(phrase)
-    phrase.downcase.chars.select { |char| ALPHA.include?(char) }.to_set == ALPHA
+    counts = phrase.downcase.scan(/[a-z]/).tally
+    counts.size == 26 && counts.values.all?(&:positive?)
   end
-
-  ALPHA = ('a'..'z').to_set
-end
-
-module BookKeeping
-  VERSION = 6
 end
