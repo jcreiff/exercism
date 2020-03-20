@@ -1,22 +1,15 @@
 class SumOfMultiples
-  attr_reader :factors
-
   def initialize(*factors)
-    @factors = factors
+    @factors = factors.reject(&:zero?)
   end
 
   def to(max)
-    return 0 if factors.empty?
-    (0...max).select { |i| multiple?(i) }.reduce(:+)
+    (0...max).filter { multiple?(_1) }.sum
   end
 
   private
 
   def multiple?(num)
-    factors.any? { |factor| (num % factor).zero? }
+    @factors.find { (num % _1).zero? }
   end
-end
-
-module BookKeeping
-  VERSION = 2
 end
