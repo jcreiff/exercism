@@ -1,8 +1,7 @@
 module BobBrain
   refine String do
     def shouting?
-      check = dup.gsub(/[^A-Za-z]/, '')
-      !check.empty? && check == check.upcase
+      self =~ /[A-Z]+/ && self !~ /[a-z]/
     end
 
     def question?
@@ -18,7 +17,7 @@ end
 class Bob
   using BobBrain
   def self.hey(remark)
-    case remark.strip
+    case remark.gsub(/\s/, '')
     when -> { _1.shouting? && _1.question? }
       "Calm down, I know what I'm doing!"
     when -> { _1.shouting? }
