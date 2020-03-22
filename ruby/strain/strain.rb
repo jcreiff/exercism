@@ -5,11 +5,13 @@ module Strain
     elsif name == :discard
       partition(&block)[1]
     else
-      raise NoMethodError, "Method `#{name}` doesn't exist."
+      super
     end
+  end
+
+  def respond_to_missing?(method, *args, &block)
+    %i[keep discard].include?(method) ? true : super
   end
 end
 
-class Array
-  include Strain
-end
+Array.include(Strain)
