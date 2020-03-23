@@ -15,15 +15,17 @@ class Game
 
   def score
     check_score_exceptions
-    frames.map { |frame, pins| calculate_frame(frame, pins) }.reduce(:+)
+    frames.sum { calculate_frame(_1, _2) }
   end
 
   private
 
   def check_roll_exceptions(pins)
     raise Game::BowlingError unless (0..10).cover?(pins)
-    raise Game::BowlingError if frame_count > 10 && frames[10].reduce(:+) < 10
+    raise Game::BowlingError if frame_count > 10 && frames[10].sum < 10
+    raise Game::BowlingError if frame_count > 11 && !strike?(frames[11])
     return if this_frame.empty?
+    raise Game::BowlingError if frame_count > 10 && spare?(frames[10])
     raise Game::BowlingError if this_frame[0] + pins > 10
   end
 
@@ -53,11 +55,11 @@ class Game
   def calculate_frame(frame, pins)
     return score_spare(frame) if spare?(pins) && frame < 10
     return score_strike(frame) if strike?(pins) && frame < 10
-    pins.reduce(:+)
+    pins.sum
   end
 
   def spare?(pins)
-    pins.length == 2 && pins.reduce(:+) == 10
+    pins.length == 2 && pins.sum == 10
   end
 
   def score_spare(frame)
@@ -69,13 +71,9 @@ class Game
   end
 
   def score_strike(frame)
-    strike?(frames[frame + 1]) ? 20 + frames[frame + 2].first : 10 + frames[frame + 1].reduce(:+)
+    strike?(frames[frame + 1]) ? 20 + frames[frame + 2].first : 10 + frames[frame + 1].sum
   end
 
   class BowlingError < StandardError
   end
-end
-
-module BookKeeping
-  VERSION = 3
 end
