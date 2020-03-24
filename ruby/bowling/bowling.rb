@@ -1,79 +1,94 @@
+require 'forwardable'
 class Game
   attr_reader :frames
-  attr_accessor :frame_count
+  attr_accessor :current
 
   def initialize
-    @frames = Hash.new([])
-    @frame_count = 1
+    @frames = {}
+    @current = 1
   end
 
   def roll(pins)
+    self.current += 1 if this_frame.complete?
     check_roll_exceptions(pins)
-    update_frame(pins)
-    update_frame_count
+    this_frame << pins
   end
 
   def score
-    check_score_exceptions
-    frames.sum { calculate_frame(_1, _2) }
+    raise BowlingError unless frames[10] && frames.all? { _2.complete? }
+    frames.sum { score_frame(_1, _2) }
   end
 
   private
 
   def check_roll_exceptions(pins)
-    raise Game::BowlingError unless (0..10).cover?(pins)
-    raise Game::BowlingError if frame_count > 10 && frames[10].sum < 10
-    raise Game::BowlingError if frame_count > 11 && !strike?(frames[11])
-    return if this_frame.empty?
-    raise Game::BowlingError if frame_count > 10 && spare?(frames[10])
-    raise Game::BowlingError if this_frame[0] + pins > 10
-  end
-
-  def this_frame
-    frames[frame_count]
-  end
-
-  def update_frame(pins)
-    if this_frame.empty?
-      frames[frame_count] = [pins]
+    raise BowlingError if !(0..10).cover?(pins) || current > 10
+    if this_frame.is_a?(TenthFrame)
+      raise BowlingError if this_frame.sum + pins > 20 && this_frame.pins != [10, 10]
     else
-      frames[frame_count] << pins
+      raise BowlingError if this_frame.sum + pins > 10
     end
   end
 
-  def update_frame_count
-    self.frame_count += 1 if this_frame == [10] || this_frame.size == 2
+  def this_frame
+    frames[current] ||= (current < 10 ? Frame.new : TenthFrame.new)
   end
 
-  def check_score_exceptions
-    raise Game::BowlingError if frame_count < 10
-    raise Game::BowlingError if strike?(frames[10]) && frames[11].empty?
-    raise Game::BowlingError if strike?(frames[10]) && strike?(frames[11]) && frames[12].empty?
-    raise Game::BowlingError if spare?(frames[10]) && frames[11].empty?
+  def score_frame(n, frame)
+    return frame.score if n == 10
+    frame.spare? ? score_spare(n) : frame.strike? ? score_strike(n) : frame.sum
   end
 
-  def calculate_frame(frame, pins)
-    return score_spare(frame) if spare?(pins) && frame < 10
-    return score_strike(frame) if strike?(pins) && frame < 10
-    pins.sum
+  def score_spare(n)
+    10 + frames[n + 1].first
   end
 
-  def spare?(pins)
-    pins.length == 2 && pins.sum == 10
-  end
-
-  def score_spare(frame)
-    10 + frames[frame + 1].first
-  end
-
-  def strike?(pins)
-    pins == [10]
-  end
-
-  def score_strike(frame)
-    strike?(frames[frame + 1]) ? 20 + frames[frame + 2].first : 10 + frames[frame + 1].sum
+  def score_strike(n)
+    frames[n + 1].strike? ? 20 + frames[n + 2].first : 10 + frames[n + 1].sum
   end
 
   class BowlingError < StandardError
+  end
+end
+
+class Frame
+  extend Forwardable
+  attr_reader :pins
+  def initialize
+    @pins = []
+  end
+
+  def_delegators :@pins, :empty?, :<<, :sum, :first, :size
+
+  def strike?
+    pins == [10]
+  end
+
+  def spare?
+    size == 2 && sum == 10
+  end
+
+  def complete?
+    strike? || size == 2
+  end
+end
+
+class TenthFrame < Frame
+  attr_reader :bonus
+  def initialize
+    @bonus = []
+    super
+  end
+
+  def complete?
+    first == 10 || spare? ? !bonus.empty? : super
+  end
+
+  def <<(pin)
+    size == 2 ? bonus << pin : super
+  end
+
+  def score
+    (pins + bonus).sum
   end
 end
