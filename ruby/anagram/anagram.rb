@@ -1,24 +1,19 @@
 class Anagram
   def initialize(word)
-    @original_word = word.downcase
-    @original_letters = sorted_letters(@original_word)
+    @word = word
   end
 
-  def match(words)
-    words.select { |word| anagram?(word.downcase) }
+  def match(candidates)
+    candidates.select { same_letters?(_1) && !same_word?(_1) }
   end
 
   private
 
-  def anagram?(word)
-    @original_letters == sorted_letters(word) && @original_word != word
+  def same_letters?(candidate)
+    @word.downcase.chars.tally == candidate.downcase.chars.tally
   end
 
-  def sorted_letters(word)
-    word.chars.sort
+  def same_word?(candidate)
+    @word.casecmp(candidate).zero?
   end
-end
-
-module BookKeeping
-  VERSION = 2
 end
