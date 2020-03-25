@@ -4,24 +4,20 @@ class Crypto
   end
 
   def ciphertext
-    (0...width).map { |column| rows.map { |row| row[column] }.join }.join(' ')
+    @normalized_text.empty? ? '' : rows.transpose.map(&:join).join(' ')
   end
 
   private
+
+  def rows
+    (@normalized_text + padding).chars.each_slice(width).to_a
+  end
 
   def width
     Math.sqrt(@normalized_text.length).ceil
   end
 
-  def rows
-    (@normalized_text + ' ' * padding).chars.each_slice(width)
-  end
-
   def padding
-    width.zero? ? width : width - @normalized_text.length / width
+    ' ' * (width - @normalized_text.length / width)
   end
-end
-
-module BookKeeping
-  VERSION = 1
 end
