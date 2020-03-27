@@ -11,7 +11,7 @@ class HighScores
   def_delegator :@scores, :max, :personal_best
 
   def personal_top_three
-    scores.sort { _2 <=> _1 }.take(3)
+    personal_best(3)
   end
 
   def latest_is_personal_best?
