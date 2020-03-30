@@ -2,8 +2,11 @@ class Queens
   attr_reader :white, :black
 
   def initialize(white: [], black: [])
-    @white = check_position(white)
-    @black = check_position(black)
+    [white, black].each do |position|
+      raise ArgumentError, 'Invalid position' unless valid?(position)
+    end
+    @white = white
+    @black = black
   end
 
   def attack?
@@ -12,12 +15,8 @@ class Queens
 
   private
 
-  def check_position(squares)
-    squares.all? { |square| (0..7).cover?(square) } ? squares : invalid
-  end
-
-  def invalid
-    raise ArgumentError, 'Invalid position'
+  def valid?(square)
+    square.all? { (0..7).cover?(_1) }
   end
 
   def same_row?
@@ -31,8 +30,4 @@ class Queens
   def same_diagonal?
     (white.first - black.first).abs == (white.last - black.last).abs
   end
-end
-
-module BookKeeping
-  VERSION = 2
 end
