@@ -1,23 +1,13 @@
 class Triangle
   def initialize(sides)
     @sides = sides.sort
-    @valid = @sides[0..1].reduce(:+) > @sides.last
+    @valid = @sides[0..1].sum > @sides.last
     @lengths = sides.uniq.count
   end
 
-  def equilateral?
-    @valid && @lengths == 1
+  [['equilateral?', :==, 1],
+   ['isosceles?', :<=, 2],
+   ['scalene?', :==, 3]].each do |name, operator, number|
+    define_method(name.to_sym) { @valid && @lengths.send(operator, number) }
   end
-
-  def isosceles?
-    @valid && @lengths <= 2
-  end
-
-  def scalene?
-    @valid && @lengths == 3
-  end
-end
-
-module BookKeeping
-  VERSION = 1
 end
