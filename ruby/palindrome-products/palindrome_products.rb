@@ -6,28 +6,27 @@ module Palindromic
   end
 end
 
-class Hash
-  %i[value factors].each { |prop| define_method(prop) { self[prop] } }
-end
-
 class Palindromes
+  Palindrome = Struct.new(:value, :factors)
+
   def initialize(min_factor: 1, max_factor:)
     @range = (min_factor..max_factor).to_a
-    @collection = Hash.new { |h, k| h[k] = { value: k, factors: [] } }
+    @palindromes = Hash.new { |k, v| k[v] = [] }
   end
 
   def largest
-    @collection.max.last
+    Palindrome.new(*@palindromes.max)
   end
 
   def smallest
-    @collection.min.last
+    Palindrome.new(*@palindromes.min)
   end
 
   using Palindromic
   def generate
-    @range.repeated_combination(2)
-          .partition { |set| set.reduce(:*).palindrome? }.first
-          .each { |pal| @collection[pal.reduce(:*)][:factors] << pal }
+    @range.repeated_combination(2).each do |factors|
+      value = factors.reduce(:*)
+      @palindromes[value] << factors if value.palindrome?
+    end
   end
 end
