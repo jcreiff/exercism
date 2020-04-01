@@ -78,10 +78,16 @@ Update your program to handle multiple numbers, one per line. When converting se
 
 Is converted to "123,456,789"
 
+Some editors trim whitespace. If you rely on trailing whitespace in a multiline string,
+instead use a format that doesn't rely on trailing whitespace, or adjust the settings in your editor.
+
+[A multiline string cheatsheet for ruby](https://commandercoriander.net/blog/2014/11/09/a-multiline-string-cheatsheet-for-ruby/)
+
+
 * * * *
 
 For installation and learning resources, refer to the
-[exercism help page](http://exercism.io/languages/ruby).
+[Ruby resources page](http://exercism.io/languages/ruby/resources).
 
 For running the tests provided, you will need the Minitest gem. Open a
 terminal window and run the following command to install minitest:
