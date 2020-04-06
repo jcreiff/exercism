@@ -8,10 +8,11 @@ class Change
   end
 
   def generate
-    return -1 if amount < 0 || (coins.min > amount && amount != 0)
+    check_for_errors
     (0...coins.count).each { |start| find_combos(coins.reverse[start..-1]) }
-    find_alternates unless coins.include?(1)
-    change_options.empty? ? -1 : change_options.sort_by(&:count).first.sort
+    find_alternates if change_options.empty?
+    raise ImpossibleCombinationError if change_options.empty?
+    change_options.min_by(&:count)
   end
 
   def self.generate(coins, amount)
@@ -19,6 +20,11 @@ class Change
   end
 
   private
+
+  def check_for_errors
+    raise NegativeTargetError if amount.negative?
+    raise ImpossibleCombinationError if coins.min > amount && amount != 0
+  end
 
   def find_combos(coin_set, total = amount, change_combo = [])
     coin_set.each do |coin|
@@ -32,9 +38,9 @@ class Change
 
   def find_alternates(change_combo = [], total = amount)
     coins.each_with_index do |coin, index|
-      until coins[index + 1..-1].any? { |c| (total % c).zero? } || total <= 0
+      until coins[index + 1..-1].any? { (total % _1).zero? } || total <= 0
         total -= coin
-        change_combo.unshift(coin)
+        change_combo.push(coin)
       end
     end
     validate(change_combo, total)
@@ -43,8 +49,10 @@ class Change
   def validate(coins, total)
     change_options.push(coins) if total.zero?
   end
-end
 
-module BookKeeping
-  VERSION = 2
+  class ImpossibleCombinationError < StandardError
+  end
+
+  class NegativeTargetError < StandardError
+  end
 end
