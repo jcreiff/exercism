@@ -1,8 +1,10 @@
 class Robot
+  ORIENTATIONS = %i[north east south west].freeze
+  MOVEMENTS = Hash[ORIENTATIONS.zip([[1, :+], [0, :+], [1, :-], [0, :-]])]
   attr_accessor :bearing, :coordinates
 
   def orient(direction)
-    raise ArgumentError, 'Invalid orientation' unless ORIENTATIONS.include?(direction)
+    raise ArgumentError, 'Invalid orientation' unless MOVEMENTS[direction]
     @bearing_index = ORIENTATIONS.index(direction)
     set_bearing
   end
@@ -32,12 +34,11 @@ class Robot
     axis, change = MOVEMENTS[@bearing]
     @coordinates.map.with_index { |c, i| i == axis ? c.send(change, 1) : c }
   end
-
-  ORIENTATIONS = %i[north east south west].freeze
-  MOVEMENTS = Hash[ORIENTATIONS.zip([[1, :+], [0, :+], [1, :-], [0, :-]])]
 end
 
 class Simulator
+  INSTRUCTIONS = Hash['L', :turn_left, 'R', :turn_right, 'A', :advance]
+
   def instructions(list)
     list.chars.map(&INSTRUCTIONS.method(:[]))
   end
@@ -48,8 +49,6 @@ class Simulator
   end
 
   def evaluate(robot, list)
-    instructions(list).each { |instruction| robot.send(instruction) }
+    instructions(list).each { robot.send(_1) }
   end
-
-  INSTRUCTIONS = Hash['L', :turn_left, 'R', :turn_right, 'A', :advance]
 end
